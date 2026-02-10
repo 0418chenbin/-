@@ -1,0 +1,154 @@
+/* 自定义样式 */
+
+/* 抽奖动画 */
+@keyframes lottery-spin {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.lottery-spinning {
+    animation: lottery-spin 0.1s infinite;
+}
+
+/* 中奖动画 */
+@keyframes winner-celebration {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.winner-celebration {
+    animation: winner-celebration 0.5s ease-in-out;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* 按钮动画效果 */
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* 响应式调整 */
+@media (max-width: 640px) {
+    #name-display {
+        font-size: 3rem !important;
+    }
+    
+    #lottery-display {
+        py-12 !important;
+    }
+    
+    .container {
+        px-2 !important;
+    }
+}
+
+/* 中奖记录项样式 */
+.winner-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.winner-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.winner-number {
+    background: rgba(255, 215, 0, 0.8);
+    color: #333;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.winner-name {
+    flex: 1;
+}
+
+.winner-time {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* 导入区域样式 */
+input[type="file"] {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+input[type="file"]:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* 状态消息样式 */
+#import-status.success {
+    color: #4ade80;
+}
+
+#import-status.error {
+    color: #f87171;
+}
+
+/* 卡片悬浮效果 */
+section {
+    transition: all 0.3s ease;
+}
+
+section:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* 渐变背景动画 */
+@keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+body {
+    background-size: 200% 200%;
+    animation: gradient-shift 15s ease infinite;
+}

@@ -220,6 +220,14 @@ function loadWinnerList() {
     if (saved) {
         try {
             winnerList = JSON.parse(saved);
+            // 为没有id的记录添加id
+            winnerList.forEach(winner => {
+                if (!winner.id) {
+                    winner.id = Date.now() + Math.random();
+                }
+            });
+            // 保存更新后的记录
+            saveWinnerList();
         } catch (error) {
             console.error('加载中奖记录失败:', error);
             winnerList = [];

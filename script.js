@@ -76,18 +76,18 @@ function importExcel() {
             // 转换为JSON
             const jsonData = XLSX.utils.sheet_to_json(worksheet);
             
-            // 提取名字
-            nameList = [];
-            jsonData.forEach(row => {
-                // 尝试不同的列名
-                const name = row['姓名'] || row['名字'] || row['name'] || row['Name'] || Object.values(row)[0];
-                if (name) {
-                    nameList.push(name.toString().trim());
-                }
-            });
+           // 提取名字
+nameList = [];
+jsonData.forEach(row => {
+    // 尝试更多列名
+    const name = row['姓名'] || row['名字'] || row['name'] || row['Name'] || row['人员'] || row['员工'] || Object.values(row)[0];
+    if (name) {
+        nameList.push(name.toString().trim());
+    }
+});
             
             // 去重
-            nameList = [...new Set(nameList)];
+            //nameList = [...new Set(nameList)];
             
             if (nameList.length === 0) {
                 showImportStatus('未找到有效名字', 'error');
@@ -179,9 +179,9 @@ function stopLottery() {
     addWinner(winnerName);
     
     // 从名单中移除中奖者（可选）
-    // nameList.splice(currentIndex, 1);
-    // elements.nameCount.textContent = `当前名单：${nameList.length} 人`;
-    // elements.statusDisplay.textContent = `就绪，共 ${nameList.length} 人`;
+     nameList.splice(currentIndex, 1);
+     elements.nameCount.textContent = `当前名单：${nameList.length} 人`;
+     elements.statusDisplay.textContent = `就绪，共 ${nameList.length} 人`;
     
     // 如果名单为空，禁用开始按钮
     if (nameList.length === 0) {
@@ -240,9 +240,40 @@ function updateWinnerListDisplay() {
                 <div class="winner-number">${index + 1}</div>
                 <div class="winner-name">${winner.name}</div>
             </div>
-            <div class="winner-time">${winner.time}</div>
+            <div class="flex items-center gap-4">
+                <div class="winner-time">${winner.time}</div>
+                <button class="delete-btn text-red-400 hover:text-red-600 transition-colors" data-id="${winner.id}">
+                    <i class="fa fa-trash"></i>
+                </button>
+            </div>
         </div>
     `).join('');
+    
+    // 绑定删除按钮事件
+    bindDeleteEvents();
+}
+
+// 绑定删除按钮事件
+function bindDeleteEvents() {
+    const deleteBtns = document.querySelectorAll('.delete-btn');
+    deleteBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const winnerId = parseInt(this.getAttribute('data-id'));
+            deleteWinner(winnerId);
+        });
+    });
+}
+
+// 删除中奖者
+function deleteWinner(id) {
+    // 从中奖记录中移除
+    winnerList = winnerList.filter(winner => winner.id !== id);
+    
+    // 保存到本地存储
+    saveWinnerList();
+    
+    // 更新中奖记录显示
+    updateWinnerListDisplay();
 }
 
 // 初始化应用

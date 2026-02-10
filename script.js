@@ -13,6 +13,7 @@ const elements = {
     stopBtn: document.getElementById('stop-btn'),
     excelFile: document.getElementById('excel-file'),
     importBtn: document.getElementById('import-btn'),
+    exportBtn: document.getElementById('export-btn'),
     importStatus: document.getElementById('import-status'),
     nameCount: document.getElementById('name-count'),
     winnerList: document.getElementById('winner-list')
@@ -44,6 +45,9 @@ function bindEvents() {
     
     // 导入Excel按钮
     elements.importBtn.addEventListener('click', importExcel);
+    
+    // 导出记录按钮
+    elements.exportBtn.addEventListener('click', exportWinners);
 }
 
 // 导入Excel文件
@@ -282,6 +286,37 @@ function deleteWinner(id) {
     
     // 更新中奖记录显示
     updateWinnerListDisplay();
+}
+
+// 导出中奖记录
+function exportWinners() {
+    if (winnerList.length === 0) {
+        alert('暂无中奖记录');
+        return;
+    }
+    
+    // 准备导出数据
+    const exportData = winnerList.map((winner, index) => ({
+        '序号': index + 1,
+        '姓名': winner.name,
+        '中奖时间': winner.time
+    }));
+    
+    // 创建工作簿
+    const wb = XLSX.utils.book_new();
+    
+    // 创建工作表
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    
+    // 添加工作表到工作簿
+    XLSX.utils.book_append_sheet(wb, ws, '中奖记录');
+    
+    // 生成文件名
+    const now = new Date();
+    const fileName = `中奖记录_${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}.xlsx`;
+    
+    // 导出文件
+    XLSX.writeFile(wb, fileName);
 }
 
 // 初始化应用

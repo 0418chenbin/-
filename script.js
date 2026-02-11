@@ -4,11 +4,14 @@ let winnerList = []; // 中奖记录
 let isLotteryRunning = false; // 抽奖是否正在运行
 let lotteryInterval = null; // 抽奖定时器
 let currentIndex = 0; // 当前显示的名字索引
+let currentAward = ''; // 当前选中的奖项
+let specialWinner = ''; // 固定特等奖获得者
 
 // DOM元素
 const elements = {
     nameDisplay: document.getElementById('name-display'),
     statusDisplay: document.getElementById('status-display'),
+    awardDisplay: document.getElementById('award-display'),
     startBtn: document.getElementById('start-btn'),
     stopBtn: document.getElementById('stop-btn'),
     excelFile: document.getElementById('excel-file'),
@@ -16,7 +19,11 @@ const elements = {
     exportBtn: document.getElementById('export-btn'),
     importStatus: document.getElementById('import-status'),
     nameCount: document.getElementById('name-count'),
-    winnerList: document.getElementById('winner-list')
+    winnerList: document.getElementById('winner-list'),
+    specialWinner: document.getElementById('special-winner'),
+    specialWinnerLabel: document.getElementById('special-winner-label'),
+    specialWinnerContainer: document.getElementById('special-winner-container'),
+    setSpecialBtn: document.getElementById('set-special-btn')
 };
 
 // 初始化
@@ -48,6 +55,52 @@ function bindEvents() {
     
     // 导出记录按钮
     elements.exportBtn.addEventListener('click', exportWinners);
+    
+    // 设置固定特等奖按钮
+    elements.setSpecialBtn.addEventListener('click', setSpecialWinner);
+    
+    // 奖项按钮
+    const awardBtns = document.querySelectorAll('.award-btn');
+    awardBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            selectAward(this.dataset.award);
+        });
+    });
+}
+
+// 选择奖项
+function selectAward(award) {
+    currentAward = award;
+    elements.awardDisplay.textContent = `当前奖项：${award}`;
+    
+    // 更新奖项按钮样式
+    const awardBtns = document.querySelectorAll('.award-btn');
+    awardBtns.forEach(btn => {
+        if (btn.dataset.award === award) {
+            btn.classList.add('ring-2', 'ring-yellow-300', 'scale-105');
+        } else {
+            btn.classList.remove('ring-2', 'ring-yellow-300', 'scale-105');
+        }
+    });
+    
+    // 启用开始按钮
+    if (nameList.length > 0) {
+        elements.startBtn.disabled = false;
+    }
+}
+
+// 设置固定特等奖
+function setSpecialWinner() {
+    const name = elements.specialWinner.value.trim();
+    if (name) {
+        specialWinner = name;
+        alert(`固定特等奖已设置为：${name}`);
+        
+        // 隐藏整个固定特等奖设置容器
+        elements.specialWinnerContainer.style.display = 'none';
+    } else {
+        alert('请输入固定特等奖获得者姓名');
+    }
 }
 
 // 导入Excel文件
@@ -80,15 +133,15 @@ function importExcel() {
             // 转换为JSON
             const jsonData = XLSX.utils.sheet_to_json(worksheet);
             
-           // 提取名字
-nameList = [];
-jsonData.forEach(row => {
-    // 尝试更多列名
-    const name = row['姓名'] || row['名字'] || row['name'] || row['Name'] || row['人员'] || row['员工'] || Object.values(row)[0];
-    if (name) {
-        nameList.push(name.toString().trim());
-    }
-});
+            // 提取名字
+            nameList = [];
+            jsonData.forEach(row => {
+                // 尝试更多列名
+                const name = row['姓名'] || row['名字'] || row['name'] || row['Name'] || row['人员'] || row['员工'] || Object.values(row)[0];
+                if (name) {
+                    nameList.push(name.toString().trim());
+                }
+            });
             
             // 去重
             //nameList = [...new Set(nameList)];
@@ -139,6 +192,11 @@ function startLottery() {
         return;
     }
     
+    if (!currentAward) {
+        elements.statusDisplay.textContent = '请先选择奖项';
+        return;
+    }
+    
     isLotteryRunning = true;
     elements.startBtn.disabled = true;
     elements.stopBtn.disabled = false;
@@ -149,18 +207,30 @@ function startLottery() {
     
     // 开始滚动名字
     lotteryInterval = setInterval(() => {
-        currentIndex = Math.floor(Math.random() * nameList.length);
-        elements.nameDisplay.textContent = nameList[currentIndex];
+        if (currentAward === '特等奖' && specialWinner) {
+            // 特等奖滚动，减少固定获奖者出现的频率，增加悬念
+            if (Math.random() > 0.5) {
+                elements.nameDisplay.textContent = specialWinner;
+            } else {
+                // 经常显示其他名字，增加悬念
+                currentIndex = Math.floor(Math.random() * nameList.length);
+                elements.nameDisplay.textContent = nameList[currentIndex];
+            }
+        } else {
+            // 其他奖项正常滚动
+            currentIndex = Math.floor(Math.random() * nameList.length);
+            elements.nameDisplay.textContent = nameList[currentIndex];
+        }
     }, 100);
 }
 
 // 停止抽奖
 function stopLottery() {
-    if (!isLotteryRunning) return;
-    
     // 清除定时器
-    clearInterval(lotteryInterval);
-    lotteryInterval = null;
+    if (lotteryInterval) {
+        clearInterval(lotteryInterval);
+        lotteryInterval = null;
+    }
     
     isLotteryRunning = false;
     elements.startBtn.disabled = false;
@@ -169,23 +239,32 @@ function stopLottery() {
     // 移除滚动动画
     elements.nameDisplay.classList.remove('lottery-spinning');
     
+    // 确保显示固定特等奖获得者
+    let winnerName;
+    if (currentAward === '特等奖' && specialWinner) {
+        winnerName = specialWinner;
+        elements.nameDisplay.textContent = winnerName;
+    } else {
+        winnerName = nameList[currentIndex];
+    }
+    
     // 添加中奖动画
     elements.nameDisplay.classList.add('winner-celebration');
     setTimeout(() => {
         elements.nameDisplay.classList.remove('winner-celebration');
     }, 500);
     
-    // 获取中奖者
-    const winnerName = nameList[currentIndex];
     elements.statusDisplay.textContent = '抽奖结束';
     
     // 记录中奖者
-    addWinner(winnerName);
+    addWinner(winnerName, currentAward);
     
-    // 从名单中移除中奖者（可选）
-     nameList.splice(currentIndex, 1);
-     elements.nameCount.textContent = `当前名单：${nameList.length} 人`;
-     elements.statusDisplay.textContent = `就绪，共 ${nameList.length} 人`;
+    // 从名单中移除中奖者（固定特等奖除外）
+    if (currentAward !== '特等奖' || !specialWinner) {
+        nameList.splice(currentIndex, 1);
+        elements.nameCount.textContent = `当前名单：${nameList.length} 人`;
+        elements.statusDisplay.textContent = `就绪，共 ${nameList.length} 人`;
+    }
     
     // 如果名单为空，禁用开始按钮
     if (nameList.length === 0) {
@@ -195,10 +274,11 @@ function stopLottery() {
 }
 
 // 添加中奖者
-function addWinner(name) {
+function addWinner(name, award) {
     const now = new Date();
     const winner = {
         name: name,
+        award: award,
         time: now.toLocaleString(),
         id: Date.now()
     };
@@ -251,6 +331,9 @@ function updateWinnerListDisplay() {
             <div class="flex items-center">
                 <div class="winner-number">${index + 1}</div>
                 <div class="winner-name">${winner.name}</div>
+                <div class="winner-award ml-4 px-2 py-1 rounded-full text-sm" style="background-color: ${getAwardColor(winner.award)}">
+                    ${winner.award}
+                </div>
             </div>
             <div class="flex items-center gap-4">
                 <div class="winner-time">${winner.time}</div>
@@ -263,6 +346,17 @@ function updateWinnerListDisplay() {
     
     // 绑定删除按钮事件
     bindDeleteEvents();
+}
+
+// 获取奖项对应的颜色
+function getAwardColor(award) {
+    switch (award) {
+        case '特等奖': return 'rgba(147, 51, 234, 0.8)'; // 紫色
+        case '一等奖': return 'rgba(220, 38, 38, 0.8)'; // 红色
+        case '二等奖': return 'rgba(249, 115, 22, 0.8)'; // 橙色
+        case '三等奖': return 'rgba(34, 197, 94, 0.8)'; // 绿色
+        default: return 'rgba(107, 114, 128, 0.8)'; // 灰色
+    }
 }
 
 // 绑定删除按钮事件
@@ -299,6 +393,7 @@ function exportWinners() {
     const exportData = winnerList.map((winner, index) => ({
         '序号': index + 1,
         '姓名': winner.name,
+        '奖项': winner.award,
         '中奖时间': winner.time
     }));
     

@@ -28,6 +28,27 @@
                 <div id="lottery-display" class="text-center py-16">
                     <div id="name-display" class="text-4xl md:text-6xl font-bold mb-4 transition-all duration-300">点击开始抽奖</div>
                     <div id="status-display" class="text-xl text-gray-300">等待导入名单</div>
+                    <div id="award-display" class="text-xl font-bold mt-4 text-yellow-300"></div>
+                </div>
+            </section>
+
+            <!-- 奖项选择区域 -->
+            <section class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-8 shadow-xl">
+                <h2 class="text-xl font-bold mb-4 text-center">奖项设置</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <button class="award-btn bg-purple-700 hover:bg-purple-800 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300" data-award="特等奖">特等奖</button>
+                    <button class="award-btn bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300" data-award="一等奖">一等奖</button>
+                    <button class="award-btn bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300" data-award="二等奖">二等奖</button>
+                    <button class="award-btn bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300" data-award="三等奖">三等奖</button>
+                </div>
+                <div class="flex flex-col md:flex-row items-center gap-4" id="special-winner-container">
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium mb-2" id="special-winner-label">固定特等奖</label>
+                        <input type="text" id="special-winner" placeholder="输入固定特等奖获得者姓名" class="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white placeholder-gray-400">
+                    </div>
+                    <button id="set-special-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300">
+                        设置固定特等奖
+                    </button>
                 </div>
             </section>
 
